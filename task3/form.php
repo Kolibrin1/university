@@ -66,15 +66,15 @@
         <p>Выбери сверхспособности:</p>
         <ul>
           <li>
-            <input type="checkbox" id="god" name="god">
+            <input type="checkbox" id="god" name="abilities[]" value=1>
             <label for="god">бессмертие</label>
           </li>
           <li>
-            <input type="checkbox" id="noclip" name="noclip">
+            <input type="checkbox" id="noclip" name="abilities[]" value=2>
             <label for="noclip">прохождение сквозь стены</label>
           </li>
           <li>
-            <input type="checkbox" id="levitation" name="levitation">
+            <input type="checkbox" id="levitation" name="abilities[]" value=3>
             <label for="levitation">левитация</label>
           </li>
         </ul> 
