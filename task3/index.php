@@ -105,7 +105,6 @@ if ($errors) {
 $user = 'u52848';
 $pass = '7536162';
 $db = new PDO('mysql:host=localhost;dbname=u52848', $user, $pass, [PDO::ATTR_PERSISTENT => true]);
-
 try {
   $stmt = $db->prepare("INSERT INTO application (name, email, year, sex, hand, biography) VALUES (?, ?, ?, ?, ?, ?)");
   $stmt->execute([$name, $email, $year, $sex, $hand, $biography]);
