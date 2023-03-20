@@ -19,8 +19,14 @@ $email = $_POST['email'];
 $year = $_POST['year'];
 $sex = $_POST['sex'];
 $hand = $_POST['hand'];
-if(isset($_POST["abilities"]))
+if(isset($_POST["abilities"])) {
   $abilities = $_POST["abilities"];
+  $filtred = array_filter($abilities, 
+  function($value) {
+    return($value == 1 || $value == 2 || $value == 3);
+  }
+  );
+}
 $biography = $_POST['biography'];
 $checkboxContract = isset($_POST['checkboxContract']);
 
@@ -82,7 +88,7 @@ if (empty($name)) {
     </h1>
   <br/>');
   $errors = TRUE;
-} else if (!preg_match('/[А-Яа-я\s\.,]/iu', $biography)) {
+} else if (!preg_match('/^[\p{Cyrillic}\d\s,.!?-]+$/u', $biography)) {
   print('
     <h1>
       Недопустимый формат ввода биографии.
@@ -97,6 +103,7 @@ if (empty($name)) {
   <br/>');
   $errors = TRUE;
 }
+
 if ($errors) {
   exit();
 }
