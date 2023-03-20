@@ -19,24 +19,10 @@ $email = $_POST['email'];
 $year = $_POST['year'];
 $sex = $_POST['sex'];
 $hand = $_POST['hand'];
+if(isset($_POST["abilities"]))
+  $abilities = $_POST["abilities"];
 $biography = $_POST['biography'];
 $checkboxContract = isset($_POST['checkboxContract']);
-
-if (isset($_POST['god'])) { 
-  $god = 1; 
-} else {
-$god = 0;
-}
-if (isset($_POST['noclip'])) { 
-  $noclip = 1; 
-} else {
-$noclip = 0;
-}
-if (isset($_POST['levitation'])) { 
-  $levitation = 1; 
-} else {
-$levitation = 0;
-}
 
 $errors = FALSE;
 
@@ -54,13 +40,6 @@ if (empty($name)) {
     </h1>
   <br/>');
   $errors = TRUE;
-} else if ((2023 - $year) < 14) {
-  print('
-    <h1>
-      Извините, вам должно быть 14 лет.
-    </h1>
-  <br/>');
-  $errors = TRUE;
 } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
   print('
     <h1>
@@ -68,10 +47,31 @@ if (empty($name)) {
     </h1>
   <br/>');
   $errors = TRUE;
-} else if ($god == 0 && $noclip == 0 && $levitation == 0) {
+} else if (!is_numeric($year)) {
   print('
     <h1>
-      Выберите хотя бы одну способность.
+      Неправильный формат ввода года.
+    </h1>
+  <br/>');
+  $errors = TRUE;
+} else if ((2023 - $year) < 14) {
+  print('
+    <h1>
+      Извините, вам должно быть 14 лет.
+    </h1>
+  <br/>');
+  $errors = TRUE;
+} else if (empty($abilities)) {
+  print('
+    <h1>
+      Выберите хотя бы одну сверхспособность.
+    </h1>
+  <br/>');
+  $errors = TRUE;
+} else if (count($filtred) != count($abilities)) {
+  print('
+    <h1>
+      Выбрана неизвестная сверхспособность.
     </h1>
   <br/>');
   $errors = TRUE;
@@ -79,6 +79,13 @@ if (empty($name)) {
   print('
     <h1>
       Расскажи о себе что-нибудь.
+    </h1>
+  <br/>');
+  $errors = TRUE;
+} else if (!preg_match('/[А-Яа-я\s\.,]/iu', $biography)) {
+  print('
+    <h1>
+      Недопустимый формат ввода биографии.
     </h1>
   <br/>');
   $errors = TRUE;
@@ -90,7 +97,6 @@ if (empty($name)) {
   <br/>');
   $errors = TRUE;
 }
-
 if ($errors) {
   exit();
 }
@@ -101,12 +107,14 @@ $pass = '7536162';
 $db = new PDO('mysql:host=localhost;dbname=u52848', $user, $pass, [PDO::ATTR_PERSISTENT => true]);
 
 try {
-  $stmt = $db->prepare("INSERT INTO application (name, email, year, sex, hand, biography) VALUES ('$name', '$email', '$year', '$sex', '$hand', '$biography')");
-  $stmt -> execute(['name', 'email', 'year', 'sex', 'hand', 'biography']);
-  $stmt = $db->prepare("INSERT INTO abilities (god, noclip, levitation) VALUES ('$god', '$noclip', '$levitation')");
-  $stmt -> execute(['god', 'noclip', 'levitation']);
-}
-catch(PDOException $e){
+  $stmt = $db->prepare("INSERT INTO application (name, email, year, sex, hand, biography) VALUES (?, ?, ?, ?, ?, ?)");
+  $stmt->execute([$name, $email, $year, $sex, $hand, $biography]);
+  $application_id = $db->lastInsertId();
+  $stmt = $db->prepare("INSERT INTO abilities (application_id, superpower_id) VALUES (?, ?)");
+  foreach ($abilities as $superpower_id) {
+    $stmt->execute([$application_id, $superpower_id]);
+  }
+} catch (PDOException $e) {
   print('Error : ' . $e->getMessage());
   exit();
 }
