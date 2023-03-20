@@ -19,24 +19,11 @@ $email = $_POST['email'];
 $year = $_POST['year'];
 $sex = $_POST['sex'];
 $hand = $_POST['hand'];
+if(isset($_POST["abilities"]))
+  $abilities = $_POST["abilities"];
 $biography = $_POST['biography'];
 $checkboxContract = isset($_POST['checkboxContract']);
 
-if (isset($_POST['god'])) { 
-  $god = 1; 
-} else {
-$god = 0;
-}
-if (isset($_POST['noclip'])) { 
-  $noclip = 1; 
-} else {
-$noclip = 0;
-}
-if (isset($_POST['levitation'])) { 
-  $levitation = 1; 
-} else {
-$levitation = 0;
-}
 
 $errors = FALSE;
 
@@ -99,14 +86,15 @@ if ($errors) {
 $user = 'u52848';
 $pass = '7536162';
 $db = new PDO('mysql:host=localhost;dbname=u52848', $user, $pass, [PDO::ATTR_PERSISTENT => true]);
-
 try {
   $stmt = $db->prepare("INSERT INTO application (name, email, year, sex, hand, biography) VALUES ('$name', '$email', '$year', '$sex', '$hand', '$biography')");
-  $stmt -> execute(['name', 'email', 'year', 'sex', 'hand', 'biography']);
-  $stmt = $db->prepare("INSERT INTO abilities (god, noclip, levitation) VALUES ('$god', '$noclip', '$levitation')");
-  $stmt -> execute(['god', 'noclip', 'levitation']);
-}
-catch(PDOException $e){
+  $stmt->execute(['name', 'email', 'year', 'sex', 'hand', 'biography']);
+  $application_id = mysqli_fetch_assoc(mysqli_query(mysqli_connect("localhost", $user, $pass, "u52855"), "SELECT MAX(application_id) AS application_id FROM `abilities`"))['application_id'] + 1;
+  foreach ($abilities as $superpower_id) {
+    $stmt = $db->prepare("INSERT INTO abilities (application_id, superpower_id) VALUES ('$application_id', '$superpower_id')");
+    $stmt->execute(['application_id', 'superpower_id']);
+  }
+} catch (PDOException $e) {
   print('Error : ' . $e->getMessage());
   exit();
 }
